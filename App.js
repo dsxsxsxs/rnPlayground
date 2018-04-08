@@ -13,9 +13,10 @@ import {
     Image,
     TextInput,
     Alert,
-    Button
+    Button,
+    ListView
 } from 'react-native';
-import { StackNavigator } from 'react-navigation';
+import { StackNavigator, TabNavigator } from 'react-navigation';
 
 const instructions = Platform.select({
   ios: 'Press Cmd+R to reload,\n' +
@@ -104,6 +105,39 @@ class DetailsScreen extends Component {
   }
 }
 
+class ListRow extends React.Component{
+    render() {
+      return (
+          <View>
+              <Image
+                  style={{width: 200, height: 300}}
+                  source={{uri: `https://picsum.photos/200/300/?random${this.props.rowData}`}}
+              />
+              <Text>row {this.props.rowData}</Text>
+          </View>
+      );
+    }
+}
+
+class ListScreen extends React.Component {
+    constructor() {
+      super()
+      const ds = new ListView.DataSource({rowHasChanged: (r1, r2) => r1 !== r2});
+      this.state = {
+        dataSource: ds.cloneWithRows([...Array(30)].map((v, i)=>i)),
+      };
+    }
+
+    render() {
+      return (
+        <ListView
+          dataSource={this.state.dataSource}
+          renderRow={(rowData) => <ListRow rowData={rowData}/>}
+        />
+      );
+    }
+}
+
 const RootStack = StackNavigator(
   {
     Home: {
@@ -117,9 +151,14 @@ const RootStack = StackNavigator(
     initialRouteName: 'Home',
   }
 );
+
+const RootTab = TabNavigator({
+  Home: { screen: RootStack },
+  List: { screen: ListScreen },
+});
 export default class App extends React.Component {
   render() {
-    return <RootStack />;
+    return <RootTab />;
   }
 }
 const styles = StyleSheet.create({
